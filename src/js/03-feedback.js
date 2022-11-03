@@ -11,7 +11,7 @@ const refs = {
 
 const userData = {};
 
-console.log(localStorage.length);
+// console.log(localStorage.length);
 
 if (localStorage.length) {
   const data = load('feedback-form-state');
