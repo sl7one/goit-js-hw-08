@@ -1,54 +1,36 @@
 const { values } = require('regenerator-runtime');
 const throttle = require('lodash.throttle');
 
+import { save, load } from './serviseJSON.js';
+
 const refs = {
   form: document.querySelector('form'),
-  email: document.querySelector('input'),
-  textarea: document.querySelector('textarea'),
+  email: document.querySelector('[name="email"]'),
+  message: document.querySelector('[name="message"]'),
 };
 
-const userData = {
-  email: '',
-  textarea: '',
-};
+const userData = {};
+
+console.log(localStorage.length);
+
+if (localStorage.length) {
+  const data = load('feedback-form-state');
+  // console.log(data.message);
+  refs.email.value = data.email;
+  refs.message.value = data.message;
+}
 
 refs.form.addEventListener('submit', onFormChange);
-refs.email.addEventListener('input', throttle(onChange, 500));
-refs.textarea.addEventListener('input', throttle(onChange, 500));
+refs.form.addEventListener('input', throttle(onChangeInput, 500));
 
 function onFormChange(event) {
   event.preventDefault();
-  clearLines();
-}
-
-function onChange({ target }) {
-  setUserData(target);
-}
-
-function clearLines() {
-  refs.email.value = '';
-  refs.textarea.value = '';
   localStorage.clear();
+  refs.email.value = '';
+  refs.message.value = '';
 }
 
-function setUserData(target) {
-  switch (target.nodeName) {
-    case 'INPUT':
-      userData.email = target.value;
-      break;
-    case 'TEXTAREA':
-      userData.textarea = target.value;
-      break;
-  }
-  localStorage.setItem('feedback-form-state', JSON.stringify(userData));
-}
-
-function getDataFromLocaleStorage() {
-  const data = JSON.parse(localStorage.getItem('feedback-form-state'));
-  refs.email.value = data.email;
-  refs.textarea.value = data.textarea;
-}
-
-if (localStorage.length !== 0) {
-  getDataFromLocaleStorage();
+function onChangeInput({ target }) {
+  userData[target.name] = target.value;
+  save('feedback-form-state', userData);
 }
